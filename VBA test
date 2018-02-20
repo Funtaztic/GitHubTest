@@ -1,0 +1,250 @@
+'Let's comment out every line that we don't understand (yet)
+
+'Dim declares variables ... As (type)
+Dim users() As String
+Dim dates() As String
+Dim nousers As Integer
+Dim nodates As Integer
+Dim ctlist(7) As String
+Dim nameparts() As String
+Dim nonameparts As Integer
+
+'All executable code must be inside a procedure. Use a Sub procedure when you don't want to return a value to the calling code. Use a Function procedure when you want to return a value.
+
+Sub runthis()
+
+'ctlist is just a list, containing 7 items as seen below. The program will reference these values to enter into the tables.
+ctlist(1) = "Dutch_team.SD.TS_CH.Incident Open"
+ctlist(2) = "Dutch_team.SD.TS_CH.Incident Resolve"
+ctlist(3) = "Dutch_team.SD.TS_CH.Incident Update"
+ctlist(4) = "Dutch_team.SD.TS_CH.Change Open"
+ctlist(5) = "Dutch_team.SD.TS_CH.Change Update"
+ctlist(6) = "Dutch_team.SD.TS_CH.Change Close"
+ctlist(7) = "Dutch_team.SD.TS_CH.Backbone emails"
+
+    Application.ScreenUpdating = False
+    With Cells
+        .Interior.Pattern = xlNone
+        .Interior.TintAndShade = 0
+        .Interior.PatternTintAndShade = 0
+        .Font.ColorIndex = xlAutomatic
+        .Font.TintAndShade = 0
+        .Font.Name = Application.StandardFont
+        .Font.size = Application.StandardFontSize
+        .RowHeight = 15
+        .HorizontalAlignment = xlGeneral
+        .WrapText = False
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = False
+    End With
+    Application.ScreenUpdating = True
+    Range("A1").Select
+
+    'get unique usernames into array and count them
+    i = 1
+    nousers = 0
+    Do While (Cells(i + 1, 1).Value <> "")
+        i = i + 1
+        If (Not (IsInArray(Cells(i, 7).Value, users, nousers)) And Cells(i, 7).Value <> "") Then
+            nousers = nousers + 1
+            ReDim Preserve users(nousers)
+            users(nousers) = Cells(i, 7).Value
+        End If
+    Loop
+    
+    'create fixeddate column
+    'Range("K1").Activate
+    'If (Not (Range("K1").Value = "FixedDates")) Then
+    '    Columns("K:K").Select
+    '    Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    '    Range("K1").Value = "FixedDates"
+    'End If
+    
+    'get unique dates into array and count them
+    i = 1
+    nodates = 0
+    Do While (Cells(i + 1, 1).Value <> "")
+        i = i + 1
+        If (Not (IsInArray(FixedDate(Cells(i, 3).Value), dates, nodates))) Then
+            nodates = nodates + 1
+            ReDim Preserve dates(nodates)
+            dates(nodates) = FixedDate(Cells(i, 3).Value)
+        End If
+    Loop
+    
+    'Application.ScreenUpdating = False
+    'i = 1
+    'Range("K:K").NumberFormat = "@"
+    'Do While (Cells(i + 1, 1).Value <> "")
+    '    i = i + 1
+    '    If (Cells(i, 5).Value <> "") Then
+    '        Cells(i, 11).NumberFormat = "@"
+    '        Cells(i, 11).Value = FixedDate(Cells(i, 5).Value)
+    '    End If
+    'Loop
+    'Application.ScreenUpdating = True
+
+    'ctlist(1) = "Dutch_team.SD.TS_CH.Incident Open"
+    'ctlist(2) = "Dutch_team.SD.TS_CH.Incident Resolve"
+    'ctlist(3) = "Dutch_team.SD.TS_CH.Incident Update"
+    'ctlist(4) = "Dutch_team.SD.TS_CH.Change Open"
+    'ctlist(5) = "Dutch_team.SD.TS_CH.Change Update"
+    'ctlist(6) = "Dutch_team.SD.TS_CH.Change Close"
+    'ctlist(7) = "Dutch_team.SD.TS_CH.Backbone emails"
+
+' This is a for loop, which does a few things.
+    For k = 1 To 7
+		'First, it clears everything from every(?) sheet
+        Workbooks("runthis.xlsm").Sheets(k).Cells.Clear
+		'Then it fills them with the data seen below:
+		'This row enters the 'name' of the sheet based on the ctlist above, like 'Dutch_team.SD.TS_CH.Incident Open'
+        Workbooks("runthis.xlsm").Sheets(k).Cells(1, 1).Value = ctlist(k)
+        Workbooks("runthis.xlsm").Sheets(k).Cells(1, 2).Value = "WIWUID"
+        Workbooks("runthis.xlsm").Sheets(k).Cells(1, 3).Value = "DATE (yyyy-mm-dd)"
+        Workbooks("runthis.xlsm").Sheets(k).Cells(1, 4).Value = "QUANTITY"
+        Workbooks("runthis.xlsm").Sheets(k).Cells(1, 5).Value = "comment"
+        Workbooks("runthis.xlsm").Sheets(k).Columns("A:E").NumberFormat = "@"
+        currentline = 1
+        For i = 1 To nousers
+            For j = 1 To nodates
+                thisuser = users(i)
+                thisdate = dates(j)
+                result = 0
+                
+                If (k = 1) Then
+                    subres = WorksheetFunction.CountIfs _
+                        (Range("G:G"), thisuser, _
+                         Range("C:C"), thisdate, _
+                         Range("E:E"), "Incident Open" _
+                        )
+                    result = result + subres
+                End If
+                
+                If (k = 2) Then
+                    subres = WorksheetFunction.CountIfs _
+                        (Range("G:G"), thisuser, _
+                         Range("C:C"), thisdate, _
+                         Range("E:E"), "Incident Resolve" _
+                        )
+                    result = result + subres
+                End If
+                
+                If (k = 3) Then
+                    subres = WorksheetFunction.CountIfs _
+                        (Range("G:G"), thisuser, _
+                         Range("C:C"), thisdate, _
+                         Range("E:E"), "Incident Update" _
+                        )
+                    result = result + subres
+                End If
+                
+                If (k = 4) Then
+                    subres = WorksheetFunction.CountIfs _
+                        (Range("G:G"), thisuser, _
+                         Range("C:C"), thisdate, _
+                         Range("E:E"), "Change Open" _
+                        )
+                    result = result + subres
+                End If
+                
+                If (k = 5) Then
+                    subres = WorksheetFunction.CountIfs _
+                        (Range("G:G"), thisuser, _
+                         Range("C:C"), thisdate, _
+                         Range("E:E"), "Change Update" _
+                        )
+                    result = result + subres
+                End If
+                
+                If (k = 6) Then
+                    subres = WorksheetFunction.CountIfs _
+                        (Range("G:G"), thisuser, _
+                         Range("C:C"), thisdate, _
+                         Range("E:E"), "Change Close" _
+                        )
+                    result = result + subres
+                End If
+                
+                If (k = 7) Then
+                    subres = WorksheetFunction.CountIfs _
+                        (Range("G:G"), thisuser, _
+                         Range("C:C"), thisdate, _
+                         Range("E:E"), "Backbone" _
+                        )
+                    result = result + subres
+                End If
+                
+                If (result > 0) Then
+                    currentline = currentline + 1
+                    Workbooks("runthis.xlsm").Sheets(k).Cells(currentline, 1).Value = ctlist(k)
+                    Workbooks("runthis.xlsm").Sheets(k).Cells(currentline, 2).Value = thisuser
+                    Workbooks("runthis.xlsm").Sheets(k).Cells(currentline, 3).Value = thisdate
+                    Workbooks("runthis.xlsm").Sheets(k).Cells(currentline, 4).Value = result
+                End If
+                
+            Next j
+        Next i
+        Workbooks("runthis.xlsm").Sheets(k).Cells.EntireColumn.AutoFit
+    Next k
+    
+    MsgBox ("Operation Completed.")
+
+End Sub
+
+
+Function IsInArray(stringToBeFound As String, arr As Variant, size As Integer) As Boolean
+    If (size > 0) Then
+        IsInArray = (UBound(Filter(arr, stringToBeFound)) > -1)
+    Else
+        IsInArray = False
+    End If
+End Function
+
+
+Function FixedDate(datestring As String) As String
+    If (Mid(datestring, 5, 1) = ".") Then
+        FixedDate = _
+            Replace(Format(DateValue("20" & Mid(datestring, 3, 2) & "-" & Mid(datestring, 6, 2) & "-" & Mid(datestring, 9, 2)), _
+                "yyyy-mm-dd"), ".", "-")
+    End If
+End Function
+
+
+Sub try()
+    MsgBox (FixedDate(ActiveCell.Value))
+End Sub
+
+
+Sub PreCT()
+
+    'get name parts first
+    'r = 0
+    'nonameparts = 0
+    'Do While Workbooks("runthis.xlsm").Sheets("nameparts").Cells(r + 1, 1).Value <> ""
+        'r = r + 1
+        'nonameparts = nonameparts + 1
+        'ReDim Preserve nameparts(nonameparts)
+        'nameparts(nonameparts) = Workbooks("runthis.xlsm").Sheets("nameparts").Cells(r, 1).Value
+    'Loop
+    
+    'go line-by-line, check if begins with one of the name parts
+    Range("A1").Activate
+    Do While ActiveCell.Offset(1, 0).Value <> ""
+        ActiveCell.Offset(1, 0).Activate
+        r = 0 'row in NameParts sheet
+        Do While Workbooks("runthis.xlsm").Worksheets("NameParts").Cells(r + 1, 1).Value <> ""
+            r = r + 1
+            namepart = Workbooks("runthis.xlsm").Worksheets("NameParts").Cells(r, 1).Value
+            If (Left(ActiveCell.Offset(0, 1).Value, Len(namepart)) = namepart) Then
+                ActiveCell.Offset(0, 6).Value = Workbooks("runthis.xlsm").Worksheets("NameParts").Cells(r, 2).Value
+            End If
+        Loop
+    Loop
+    
+    Range("G1").Value = "WIWUID"
+
+End Sub
